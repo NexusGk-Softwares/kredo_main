@@ -293,10 +293,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['REQUEST_URI'], 'ca
                 <p id="bundleDescription"></p>
                 <form id="buyForm">
                     <div class="mb-3">
-                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                        <label for="phoneNumber" class="form-label">Your Phone Number (optional)</label>
                         <input type="text" class="form-control" id="phoneNumber" placeholder="Enter your phone number" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Confirm Purchase via WhatsApp</button>
+                    <button type="submit" class="btn btn-primary">Confirm Order via WhatsApp</button>
                 </form>
             </div>
         </div>
@@ -339,20 +339,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['REQUEST_URI'], 'ca
     // Handle the buy form submission
     document.getElementById('buyForm').onsubmit = function (e) {
         e.preventDefault(); // Prevent default form submission
-        const phoneNumber = document.getElementById('phoneNumber').value;
+        const phoneNumber = document.getElementById('phoneNumber').value; // Optional phone number
         const selectedBundleIndex = document.getElementById('selectedBundle').value;
         const bundle = bundlesToDisplay[selectedBundleIndex];
 
-        if (phoneNumber) {
-            // Create WhatsApp link with the bundle information
-            const message = `I would like to purchase the following data bundle:\n\n${bundle.title}\nValidity: ${bundle.validity}\nProvider: ${bundle.provider}\n\nPhone number: ${phoneNumber}`;
-            const whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        // Create WhatsApp link with the bundle information
+        const message = `I would like to purchase the following data bundle:\n\n${bundle.title}\nValidity: ${bundle.validity}\nProvider: ${bundle.provider}\n\nPhone number: ${phoneNumber}`;
+        const whatsappNumber = '+254705665685'; // Fixed number
+        const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-            // Redirect to WhatsApp
-            window.open(whatsappLink, '_blank');
-            const buyModal = bootstrap.Modal.getInstance(document.getElementById('buyModal'));
-            buyModal.hide(); // Hide modal after redirect
-        }
+        // Redirect to WhatsApp
+        window.open(whatsappLink, '_blank');
+        const buyModal = bootstrap.Modal.getInstance(document.getElementById('buyModal'));
+        buyModal.hide(); // Hide modal after redirect
     };
 
     renderBundleRows(); // Initial render
