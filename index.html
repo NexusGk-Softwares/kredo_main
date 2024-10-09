@@ -1,125 +1,4 @@
-<!--<?php
-// Safaricom M-Pesa STK Push Integration in PHP
 
-// Function to generate an access token
-function generateAccessToken() {
-    $consumerKey = 'YOUR_CONSUMER_KEY';  // Replace with your Consumer Key
-    $consumerSecret = 'YOUR_CONSUMER_SECRET';  // Replace with your Consumer Secret
-
-    // Base64 encode the consumer key and secret
-    $credentials = base64_encode($consumerKey . ':' . $consumerSecret);
-
-    // Safaricom OAuth URL for generating the access token
-    $url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-
-    // Initialize cURL
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Authorization: Basic ' . $credentials));
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-    // Execute cURL request and capture the response
-    $curl_response = curl_exec($curl);
-    curl_close($curl);
-
-    // Decode the JSON response and return the access token
-    $result = json_decode($curl_response);
-    return $result->access_token;
-}
-
-// Function to perform the STK Push
-function stkPush($phone, $amount) {
-    // Generate an access token
-    $accessToken = generateAccessToken();
-
-    // Safaricom STK Push endpoint URL
-    $url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-
-    // Business details (replace with your own)
-    $BusinessShortCode = 'YOUR_SHORTCODE'; // Replace with your Business Shortcode
-    $LipaNaMpesaOnlinePasskey = 'YOUR_PASSKEY'; // Replace with your Passkey
-    $TransactionType = 'CustomerPayBillOnline';
-    $PartyA = $phone; // The phone number of the customer
-    $PhoneNumber = $phone; // Same as PartyA
-    $CallBackURL = 'https://yourdomain.com/callback'; // Replace with your callback URL
-    $AccountReference = 'UniqueReference'; // For your own records
-    $TransactionDesc = 'Payment for services';
-    
-    // Safaricom timestamp and password generation
-    $Timestamp = date('YmdHis');
-    $Password = base64_encode($BusinessShortCode . $LipaNaMpesaOnlinePasskey . $Timestamp);
-
-    // Prepare the request payload
-    $curl_post_data = array(
-        'BusinessShortCode' => $BusinessShortCode,
-        'Password' => $Password,
-        'Timestamp' => $Timestamp,
-        'TransactionType' => $TransactionType,
-        'Amount' => $amount,  // Amount to be charged
-        'PartyA' => $PartyA,
-        'PartyB' => $BusinessShortCode,
-        'PhoneNumber' => $PhoneNumber,
-        'CallBackURL' => $CallBackURL,
-        'AccountReference' => $AccountReference,
-        'TransactionDesc' => $TransactionDesc
-    );
-
-    // Convert the payload to JSON
-    $data_string = json_encode($curl_post_data);
-
-    // Initialize cURL to make the STK Push request
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json', 'Authorization:Bearer ' . $accessToken));
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-
-    // Execute cURL request and return the response
-    $curl_response = curl_exec($curl);
-    curl_close($curl);
-
-    return $curl_response;
-}
-
-// Handle the callback from Safaricom
-function handleCallback() {
-    // Retrieve the callback data
-    $callbackData = file_get_contents('php://input');
-    $response = json_decode($callbackData, true);
-
-    // Process the response (for example, update order status)
-    if (isset($response['Body']['stkCallback']['ResultCode'])) {
-        $resultCode = $response['Body']['stkCallback']['ResultCode'];
-        $resultDesc = $response['Body']['stkCallback']['ResultDesc'];
-
-        // Check for a successful payment (ResultCode 0 means success)
-        if ($resultCode == 0) {
-            $mpesaReceiptNumber = $response['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'];
-            // Successful payment. Update your database and mark the payment as successful.
-            file_put_contents('callback_success.log', 'Payment successful. Receipt: ' . $mpesaReceiptNumber . PHP_EOL, FILE_APPEND);
-        } else {
-            // Payment failed. Log the error.
-            file_put_contents('callback_error.log', 'Payment failed: ' . $resultDesc . PHP_EOL, FILE_APPEND);
-        }
-    }
-}
-
-// Example usage: Triggering STK Push
-if (isset($_POST['phone']) && isset($_POST['amount'])) {
-    $phone = $_POST['phone'];
-    $amount = $_POST['amount'];
-
-    // Call the stkPush function
-    $response = stkPush($phone, $amount);
-    echo $response; // Return the response from the STK push
-}
-
-// Example usage: Handling the callback
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['REQUEST_URI'], 'callback') !== false) {
-    handleCallback();
-}
-?> -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -133,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['REQUEST_URI'], 'ca
         
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f4f7fa;
+            
             color: #343a40;
             padding-top: 70px;
         }
@@ -171,13 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['REQUEST_URI'], 'ca
         }
 
         .footer {
-            background-color: #343a40;
+            background-color: #01c722;
             color: #ffffff;
             padding: 1px 0;
             position: relative;
             bottom: 0;
             border-radius: 20px;
-            
+            width:99%;
             
         }
 
@@ -252,9 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['REQUEST_URI'], 'ca
     </section>
  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
+        
 
         .bundle-card {
             transition: transform 0.2s;
@@ -267,185 +144,215 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['REQUEST_URI'], 'ca
 </head>
 <body>
     <div class="container">
-        <h1 class="my-4">Available Data Bundles</h1>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Bundle Title</th>
-                    <th>Validity</th>
-                    <th>Network Provider</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="bundleRows"></tbody>
-        </table>
-    </div>
+        <h1>Buy (Bundles, Data, Calls, SMS)</h1>
 
-    <!-- Modal for Buying Bundle -->
-    <div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="buyModalLabel">Buy Data Bundle</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="bundleDescription"></p>
-                    <form id="buyForm">
-                        <div class="mb-3">
-                            <label for="phoneNumber" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" id="phoneNumber" placeholder="Enter your phone number" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Confirm Purchase</button>
-                    </form>
+        <!-- Category Bar -->
+        <ul class="nav nav-pills mb-3">
+            <li class="nav-item">
+                <button class="nav-link active" onclick="showCategory('Safaricom')">Safaricom</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" onclick="showCategory('Airtel')">Airtel</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" onclick="showCategory('Telkom')">Telkom</button>
+            </li>
+        </ul>
+
+        <!-- Bundle Type Tabs (Data, Calls, SMS) -->
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link active" id="tab-data" href="#" onclick="showBundleType('Data')">Data</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="tab-calls" href="#" onclick="showBundleType('Calls')">Calls</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="tab-sms" href="#" onclick="showBundleType('SMS')">SMS</a>
+            </li>
+        </ul>
+
+        <!-- Bundle Display Area -->
+        <div id="bundleCards" class="row"></div>
+
+        <!-- Modal for Phone Number and Description -->
+        <div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="buyModalLabel">Buy Bundle</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="buyForm">
+                            <div class="mb-3">
+                                <label for="phoneNumber" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter your phone number" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="bundleDescription" class="form-label">Bundle Description</label>
+                                <textarea class="form-control" id="bundleDescription" rows="3" readonly></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Confirm Purchase</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Load bundles from local storage or fallback to default data
-        let bundlesToDisplay = JSON.parse(localStorage.getItem('bundles')) || [
-            { title: '1.5GB @ Ksh 50', validity: 'Valid for 3 hours', provider: 'Safaricom' },
-            { title: '350MB @ Ksh 49', validity: 'Valid for 7 days', provider: 'Airtel' },
-            { title: '2.5GB @ Ksh 300', validity: 'Valid for 7 days', provider: 'Telkom' },
-        ];
+        // Bundles data for each category and type
+        const bundles = {
+            Safaricom: {
+                Data: [
+                    { title: '1GB @ Ksh 100', validity: 'Valid for 24 hours' },
+                    { title: '2GB @ Ksh 200', validity: 'Valid for 48 hours' }
+                ],
+                Calls: [
+                    { title: '100 minutes @ Ksh 50', validity: 'Valid for 24 hours' },
+                    { title: '500 minutes @ Ksh 200', validity: 'Valid for 7 days' }
+                ],
+                SMS: [
+                    { title: '200 SMS @ Ksh 30', validity: 'Valid for 24 hours' },
+                    { title: '1000 SMS @ Ksh 100', validity: 'Valid for 7 days' }
+                ]
+            },
+            Airtel: {
+                Data: [
+                    { title: '500MB @ Ksh 50', validity: 'Valid for 24 hours' },
+                    { title: '3GB @ Ksh 300', validity: 'Valid for 72 hours' }
+                ],
+                Calls: [
+                    { title: '50 minutes @ Ksh 20', validity: 'Valid for 24 hours' },
+                    { title: '300 minutes @ Ksh 150', validity: 'Valid for 7 days' }
+                ],
+                SMS: [
+                    { title: '100 SMS @ Ksh 20', validity: 'Valid for 24 hours' },
+                    { title: '500 SMS @ Ksh 60', validity: 'Valid for 7 days' }
+                ]
+            },
+            Telkom: {
+                Data: [
+                    { title: '1GB @ Ksh 80', validity: 'Valid for 24 hours' },
+                    { title: '5GB @ Ksh 500', validity: 'Valid for 7 days' }
+                ],
+                Calls: [
+                    { title: '150 minutes @ Ksh 100', validity: 'Valid for 48 hours' },
+                    { title: 'Unlimited minutes @ Ksh 1000', validity: 'Valid for 30 days' }
+                ],
+                SMS: [
+                    { title: '300 SMS @ Ksh 40', validity: 'Valid for 24 hours' },
+                    { title: 'Unlimited SMS @ Ksh 300', validity: 'Valid for 30 days' }
+                ]
+            }
+        };
 
-        function renderBundleRows() {
-            const tableBody = document.getElementById('bundleRows');
-            tableBody.innerHTML = ''; // Clear existing rows
-            bundlesToDisplay.forEach((bundle, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${bundle.title}</td>
-                    <td>${bundle.validity}</td>
-                    <td>${bundle.provider}</td>
-                    <td><button class="btn btn-success" onclick="openBuyModal(${index})">Buy</button></td>
+        let currentCategory = 'Safaricom'; // Default category
+        let currentBundleType = 'Data';    // Default bundle type
+
+        // Function to display bundles based on selected category and type
+        function showCategory(category) {
+            currentCategory = category;
+            renderBundles();
+            // Update active category button style
+            document.querySelectorAll('.nav-pills .nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector(`[onclick="showCategory('${category}')"]`).classList.add('active');
+        }
+
+        function showBundleType(bundleType) {
+            currentBundleType = bundleType;
+            renderBundles();
+            // Update active bundle type tab style
+            document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`#tab-${bundleType.toLowerCase()}`).classList.add('active');
+        }
+
+        // Render bundles based on the selected category and bundle type
+        function renderBundles() {
+            const bundleCards = document.getElementById('bundleCards');
+            bundleCards.innerHTML = ''; // Clear previous bundles
+
+            const bundleData = bundles[currentCategory][currentBundleType];
+            bundleData.forEach((bundle, index) => {
+                const card = document.createElement('div');
+                card.className = 'col-md-4 mb-3';
+                card.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">${bundle.title}</h5>
+                            <p class="card-text">${bundle.validity}</p>
+                            <button class="btn btn-primary" onclick="openModal('${bundle.title}')">Buy</button>
+                        </div>
+                    </div>
                 `;
-                tableBody.appendChild(row);
+                bundleCards.appendChild(card);
             });
         }
 
-        // Open the modal to buy the selected bundle
-        function openBuyModal(index) {
-            const bundle = bundlesToDisplay[index];
-            document.getElementById('bundleDescription').innerText = `You are purchasing: ${bundle.title} - ${bundle.validity}`;
+        // Open modal and set bundle description
+        function openModal(bundleTitle) {
+            document.getElementById('bundleDescription').value = bundleTitle;
             const buyModal = new bootstrap.Modal(document.getElementById('buyModal'));
             buyModal.show();
         }
 
-        // Handle the buy form submission
+        // Handle form submission
         document.getElementById('buyForm').onsubmit = function (e) {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault(); // Prevent form submission
             const phoneNumber = document.getElementById('phoneNumber').value;
-            if (phoneNumber) {
-                alert(`Purchase confirmed for ${phoneNumber}.`);
-                const buyModal = bootstrap.Modal.getInstance(document.getElementById('buyModal'));
-                buyModal.hide(); // Hide modal after confirmation
-            }
+            const bundleDescription = document.getElementById('bundleDescription').value;
+            alert(`Purchase confirmed for ${bundleDescription} to phone number ${phoneNumber}`);
+            // Close modal after purchase
+            const buyModal = bootstrap.Modal.getInstance(document.getElementById('buyModal'));
+            buyModal.hide();
         };
 
-        renderBundleRows(); // Initial render
+        // Initial render of default category and bundle type
+        renderBundles();
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-
-    <!-- About Section -->
-    <section id="about" class="py-5">
-        <div class="container">
-            <h2 class="mb-4">About Kredo Mall</h2>
-            <p>Kredo Mall is your go-to marketplace for the best data bundle offers, tailored to your specific needs.
-                From hourly bundles to month-long data packs, we've got you covered!</p>
-        </div>
-    </section>
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container text-center">
-            <p>&copy; 2024 Kredo Mall. All rights reserved. ❤️Proudly made by NexusGK❤️</p>
-            <p><a href="#about">About</a> | <a href="#contact">Contact</a></p> <a href="admin.html">❤️</a></p>
-        </div>
-    </footer>
-
-    <!-- Modal -->
-    <div class="modal fade" id="bundleModal" tabindex="-1" aria-labelledby="bundleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bundleModalLabel">Purchase Bundle</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Bundle:</strong> <span id="modalBundleName"></span></p>
-                    <p><strong>Price:</strong> <span id="modalBundlePrice"></span></p>
-                    <p><strong>Details:</strong> <span id="modalBundleDetails"></span></p>
-                    <form>
-                        <div class="mb-3">
-                            <label for="phoneNumber" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter your phone number">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Proceed to Payment</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+<!-- About Section -->
+<section id="about" class="py-5">
+    <div class="container">
+        <h2>About Us</h2>
+        <p>
+            We are a leading provider of data, calls, and SMS bundles across all major networks in Kenya, including Safaricom, Airtel, and Telkom. Our mission is to offer affordable and convenient bundle packages tailored to meet your communication needs.
+        </p>
     </div>
+</section>
+<!-- Contact Section -->
+<section id="contact" class="py-5 bg-light">
+    <div class="container">
+        <h2>Contact Us</h2>
+        <form>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email">
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea class="form-control" id="message" rows="4" placeholder="Write your message"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+    </div>
+</section>
+<!-- Footer -->
+<footer class="bg-dark text-light py-3">
+    <div class="container text-center">
+        <p>&copy; 2024 Kredomall Enterprises Store. All rights reserved.</p>
+        <p>Follow us on: 
+            <a href="#" class="text-light">Facebook</a> | 
+            <a href="#" class="text-light">Twitter</a> | 
+            <a href="#" class="text-light">Instagram</a>
+        </p>
+    </div>
+</footer>
 
-    <script>
-        function openModal(bundleName, bundlePrice, bundleDetails) {
-            document.getElementById('modalBundleName').textContent = bundleName;
-            document.getElementById('modalBundlePrice').textContent = bundlePrice;
-            document.getElementById('modalBundleDetails').textContent = bundleDetails;
-            var bundleModal = new bootstrap.Modal(document.getElementById('bundleModal'));
-            bundleModal.show();
-        }
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-
-<!-- Code injected by live-server -->
-<script>
-	// <![CDATA[  <-- For SVG support
-	if ('WebSocket' in window) {
-		(function () {
-			function refreshCSS() {
-				var sheets = [].slice.call(document.getElementsByTagName("link"));
-				var head = document.getElementsByTagName("head")[0];
-				for (var i = 0; i < sheets.length; ++i) {
-					var elem = sheets[i];
-					var parent = elem.parentElement || head;
-					parent.removeChild(elem);
-					var rel = elem.rel;
-					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
-						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
-						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
-					}
-					parent.appendChild(elem);
-				}
-			}
-			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
-			var address = protocol + window.location.host + window.location.pathname + '/ws';
-			var socket = new WebSocket(address);
-			socket.onmessage = function (msg) {
-				if (msg.data == 'reload') window.location.reload();
-				else if (msg.data == 'refreshcss') refreshCSS();
-			};
-			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
-				console.log('Live reload enabled.');
-				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
-			}
-		})();
-	}
-	else {
-		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
-	}
-	// ]]>
-</script>
 </body>
-
 </html>
-
