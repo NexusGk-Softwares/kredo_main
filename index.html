@@ -50,27 +50,123 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
-        .footer {
-            background-color: #01c722;
-            color: #ffffff;
-            padding: 1px 0;
-            position: relative;
-            bottom: 0;
-            border-radius: 20px;
-            width:99%;
-            
-        }
+        
+.footer {
+  position: relative;
+  width: 100%;
+  background: #3586ff;
+  min-height: 100px;
+  padding: 20px 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 
-        .footer a {
-            color: #ffffff;
-            text-decoration: none;
-        }
+.social-icon,
+.menu {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
 
-        .footer a:hover {
-            text-decoration: underline;
-        }
+.social-icon__item,
+.menu__item {
+  list-style: none;
+}
 
-        /* Modal styles */
+.social-icon__link {
+  font-size: 2rem;
+  color: #fff;
+  margin: 0 10px;
+  display: inline-block;
+  transition: 0.5s;
+}
+.social-icon__link:hover {
+  transform: translateY(-10px);
+}
+
+.menu__link {
+  font-size: 1.2rem;
+  color: #fff;
+  margin: 0 10px;
+  display: inline-block;
+  transition: 0.5s;
+  text-decoration: none;
+  opacity: 0.75;
+  font-weight: 300;
+}
+
+.menu__link:hover {
+  opacity: 1;
+}
+
+.footer p {
+  color: #fff;
+  margin: 15px 0 10px 0;
+  font-size: 1rem;
+  font-weight: 300;
+}
+
+.wave {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: url("https://i.ibb.co/wQZVxxk/wave.png");
+  background-size: 1000px 100px;
+}
+
+.wave#wave1 {
+  z-index: 1000;
+  opacity: 1;
+  bottom: 0;
+  animation: animateWaves 4s linear infinite;
+}
+
+.wave#wave2 {
+  z-index: 999;
+  opacity: 0.5;
+  bottom: 10px;
+  animation: animate 4s linear infinite !important;
+}
+
+.wave#wave3 {
+  z-index: 1000;
+  opacity: 0.2;
+  bottom: 15px;
+  animation: animateWaves 3s linear infinite;
+}
+
+.wave#wave4 {
+  z-index: 999;
+  opacity: 0.7;
+  bottom: 20px;
+  animation: animate 3s linear infinite;
+}
+
+@keyframes animateWaves {
+  0% {
+    background-position-x: 1000px;
+  }
+  100% {
+    background-positon-x: 0px;
+  }
+}
+
+@keyframes animate {
+  0% {
+    background-position-x: -1000px;
+  }
+  100% {
+    background-positon-x: 0px;
+  }
+}
+/* Modal styles */
         .modal-header {
             background-color: #007bff;
             color: white;
@@ -138,11 +234,12 @@
 </div>
 
 <!-- Results Section -->
+ <div class="master">
 <div id="searchResults" class="mt-3">
     <h5></h5>
     <ul id="resultsList"></ul> <!-- Will display matching numbers -->
 </div>
-
+ </div>
 <!-- JavaScript to search, scroll, and highlight the matching number -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -212,6 +309,11 @@
     /* Smaller input field */
     .search-input {
         width: 100px; /* Adjust this value as needed */
+    }
+    .master{
+        border-color: #01c722;
+        border-radius: 10px;
+        text-decoration: none;
     }
 </style>
 <hr>
@@ -399,6 +501,95 @@
     </script>
     <hr>
     <!-- Airtime Section -->
+     <!-- Trigger the Modal -->
+<!--<button id="buyBtn" data-description="Bundle Package" data-price="100">Buy Bundle</button>
+<button id="buyBtn" data-description="Airtime Package" data-price="50">Buy Airtime</button>
+
+
+<div id="paymentModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Enter Your Phone Number</h2>
+
+    <label for="phoneNumber">Phone Number:</label>
+    <input type="text" id="phoneNumber" placeholder="e.g., 254712345678" required>
+
+    <button id="payBtn">Proceed to Pay</button>
+  </div>
+</div>-->
+
+<script>
+// Modal functionality
+const modal = document.getElementById('paymentModal');
+const closeModal = document.getElementsByClassName('close')[0];
+const buyButtons = document.querySelectorAll('#buyBtn');
+
+// Attach click event to all "Buy" buttons to open the modal
+buyButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const description = button.getAttribute('data-description');
+    const price = button.getAttribute('data-price');
+
+    // Open modal
+    modal.style.display = 'block';
+
+    // Handle the "Pay" button click inside the modal
+    document.getElementById('payBtn').onclick = async function() {
+      const phoneNumber = document.getElementById('phoneNumber').value;
+
+      if (!phoneNumber) {
+        alert('Please enter your phone number');
+        return;
+      }
+
+      try {
+        // Send the STK Push request to the backend
+        const response = await fetch('/stk-push', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            phoneNumber: phoneNumber,
+            amount: price,
+            description: description
+          })
+        });
+
+        const data = await response.json();
+        if (data.message === 'STK Push initiated') {
+          alert(`Payment request sent to phone number ${phoneNumber}. Check your phone.`);
+        } else {
+          alert('Payment failed. Please try again.');
+        }
+
+      } catch (error) {
+        console.error('Payment Error:', error);
+        alert('Payment failed due to a technical error.');
+      }
+
+      // Close the modal after submission
+      modal.style.display = 'none';
+    };
+  });
+});
+
+// Close modal when the user clicks the close button
+closeModal.onclick = function() {
+  modal.style.display = 'none';
+};
+
+// Close modal if user clicks anywhere outside the modal content
+window.onclick = function(event) {
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+};
+</script>
+
+<!-- Add CSS for Modal -->
+
+
 <!-- Airtime Section -->
 <section id="airtime-section" class="py-5">
     <div class="container">
@@ -662,17 +853,114 @@
 </section>
 
 <!-- Footer -->
-<footer class="bg-dark text-light py-3">
-    <div class="container text-center">
-        <p>&copy; 2024 Kredomall Enterprises Store. All rights reserved.</p>
-        <p>Follow us on: 
-            <a href="#" class="text-light">Facebook</a> | 
-            <a href="#" class="text-light">Twitter</a> | 
-            <a href="#" class="text-light">Instagram</a>
-        </p>
+<footer class="footer">
+    <div class="waves">
+      <div class="wave" id="wave1"></div>
+      <div class="wave" id="wave2"></div>
+      <div class="wave" id="wave3"></div>
+      <div class="wave" id="wave4"></div>
     </div>
-</footer>
+    <ul class="social-icon">
+      <li class="social-icon__item"><a class="social-icon__link" href="#">
+          <ion-icon name="logo-facebook"></ion-icon>
+        </a></li>
+      <li class="social-icon__item"><a class="social-icon__link" href="#">
+          <ion-icon name="logo-twitter"></ion-icon>
+        </a></li>
+      <li class="social-icon__item"><a class="social-icon__link" href="#">
+          <ion-icon name="logo-linkedin"></ion-icon>
+        </a></li>
+      <li class="social-icon__item"><a class="social-icon__link" href="#">
+          <ion-icon name="logo-instagram"></ion-icon>
+        </a></li>
+    </ul>
+    <ul class="menu">
+      <li class="menu__item"><a class="menu__link" href="#">Home</a></li>
+      <li class="menu__item"><a class="menu__link" href="#About">About</a></li>
+      <!--<li class="menu__item"><a class="menu__link" href="#">Services</a></li>
+      <li class="menu__item"><a class="menu__link" href="#">Team</a></li>
+      <li class="menu__item"><a class="menu__link" href="#">Contact</a></li>-->
 
+    </ul>
+    <p>&copy;2024 NexusGK _ Softwares | All Rights Reserved</p>
+  </footer>
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+<script>
+    // Import necessary packages
+const express = require('express');
+const axios = require('axios');
+const bodyParser = require('body-parser');
+const btoa = require('btoa');
+
+const app = express();
+app.use(bodyParser.json());
+
+const consumerKey = 'YOUR_CONSUMER_KEY';
+const consumerSecret = 'YOUR_CONSUMER_SECRET';
+const shortcode = 'YOUR_SHORTCODE';  // Example: '174379'
+const passkey = 'YOUR_MPESA_PASSKEY';
+
+// Endpoint to generate MPESA access token
+app.get('/get-token', async (req, res) => {
+    const auth = btoa(`${consumerKey}:${consumerSecret}`);
+    try {
+        const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
+            headers: {
+                Authorization: `Basic ${auth}`,
+            },
+        });
+        res.json({ token: response.data.access_token });
+    } catch (error) {
+        console.error('Error getting token', error);
+        res.status(500).json({ message: 'Error getting token' });
+    }
+});
+
+// Endpoint to handle MPESA STK Push request
+app.post('/stk-push', async (req, res) => {
+    const { phoneNumber, amount, description } = req.body;  // phoneNumber from modal input and amount/description based on selected item
+    const tokenResponse = await axios.get('http://localhost:3000/get-token');
+    const token = tokenResponse.data.token;
+
+    const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, '').slice(0, -4);
+    const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
+
+    const stkPushData = {
+        BusinessShortCode: shortcode,
+        Password: password,
+        Timestamp: timestamp,
+        TransactionType: 'CustomerPayBillOnline',
+        Amount: amount,
+        PartyA: phoneNumber,  // Phone number to be charged
+        PartyB: shortcode,
+        PhoneNumber: phoneNumber,
+        CallBackURL: 'https://yourdomain.com/mpesa-callback',  // Callback URL to handle the response
+        AccountReference: description,  // Description of the purchase (e.g., Bundle/Airtime)
+        TransactionDesc: `Payment for ${description}`
+    };
+
+    try {
+        const stkPushResponse = await axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', stkPushData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        res.json({ message: 'STK Push initiated', data: stkPushResponse.data });
+    } catch (error) {
+        console.error('Error in STK Push:', error);
+        res.status(500).json({ message: 'Error initiating STK Push' });
+    }
+});
+
+// Start server
+app.listen(3000, () => {
+    console.log('Server running on port 3000');
+});
+
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
